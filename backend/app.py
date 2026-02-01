@@ -190,26 +190,29 @@ def download_with_ytdlp(url, format_type, quality, cookies_text=None, po_token=N
     youtube_args = {'skip': ['hls']}
     
     if cookies_text:
-        youtube_args['player_client'] = ['web', 'mweb', 'ios']
-    elif po_token and visitor_data:
-        # User provided manual PO Token
-        youtube_args['player_client'] = ['web']
-        youtube_args['po_token'] = f"web+{po_token}"
-        youtube_args['visitor_data'] = visitor_data
+        # For cookies, we must match the user-agent and use standard clients
+        youtube_args['player_client'] = ['web', 'mweb', 'ios', 'android']
+        print("Using authenticated session (Cookies)")
     else:
         # Try to get an automatic PO Token
         auto_po, auto_visitor = get_automatic_po_token()
         if auto_po and auto_visitor:
-            youtube_args['player_client'] = ['web']
+            # When using PO Token, we must tell yt-dlp which client the token belongs to
+            # Most providers generate tokens for the 'web' client
+            youtube_args['player_client'] = ['web', 'mweb']
             youtube_args['po_token'] = f"web+{auto_po}"
             youtube_args['visitor_data'] = auto_visitor
-            print("Using automatic PO Token bypass")
+            # Also set global po_token for other clients if possible
+            print(f"Using automatic PO Token bypass (Token: {auto_po[:10]}...)")
         else:
-            # Complete fallback to anonymous
+            # Complete fallback to anonymous - android_vr is the current king of anonymous bypass
             youtube_args['player_client'] = ['android_vr', 'web']
             print("Using anonymous fallback (No tokens available)")
         
     ydl_opts['extractor_args'] = {'youtube': youtube_args}
+    
+    # Enable verbose logging for debugging in Render logs
+    ydl_opts['verbose'] = True
     
     # Add cookies if provided by client
     cookie_file = None
