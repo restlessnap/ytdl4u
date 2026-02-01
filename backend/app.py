@@ -52,6 +52,10 @@ def get_video_info():
             'quiet': True,
             'no_warnings': True,
             'extract_flat': False,
+            # Bypass bot detection
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
+            'nocheckcertificate': True,
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -97,12 +101,30 @@ def download_video():
         download_id = str(uuid.uuid4())
         output_template = os.path.join(DOWNLOAD_DIR, f'ytdl4u_{download_id}.%(ext)s')
         
-        # Configure yt-dlp options
+        # Configure yt-dlp options with bot bypass
         ydl_opts = {
             'format': get_format_string(format_type, quality),
             'outtmpl': output_template,
             'quiet': True,
             'no_warnings': True,
+            # Bypass YouTube bot detection
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'web', 'ios'],
+                    'skip': ['hls', 'dash'],
+                }
+            },
+            'nocheckcertificate': True,
+            'geo_bypass': True,
+            'age_limit': None,
+            # Additional options to avoid detection
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-us,en;q=0.5',
+                'Sec-Fetch-Mode': 'navigate',
+            },
         }
         
         # Add audio-specific options for MP3
