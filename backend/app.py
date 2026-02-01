@@ -131,22 +131,36 @@ def download_with_ytdlp(url, format_type, quality, cookies_text=None):
     download_id = str(uuid.uuid4())
     output_template = os.path.join(DOWNLOAD_DIR, f'ytdl4u_{download_id}.%(ext)s')
     
-    # Configure yt-dlp options - Match working local configuration
+    # Get User-Agent from client to match cookies
+    user_agent = request.headers.get('User-Agent')
+    
+    # Configure yt-dlp options
     ydl_opts = {
         'format': get_format_string(format_type, quality),
         'outtmpl': output_template,
-        'quiet': False,  # Show errors for debugging
+        'quiet': False,
         'no_warnings': False,
-        # Use webpage extraction with android_vr (what works locally!)
-        'extractor_args': {
+        'nocheckcertificate': True,
+        'user_agent': user_agent,  # Match the browser that exported the cookies
+    }
+    
+    # Adjust extraction strategy based on authentication
+    if cookies_text:
+        # If we have cookies, use standard web clients which are more stable with sessions
+        ydl_opts['extractor_args'] = {
             'youtube': {
-                'player_client': ['android_vr', 'web'],  # android_vr works!
+                'player_client': ['web', 'mweb', 'ios'],
                 'skip': ['hls'],
             }
-        },
-        # Don't force any specific user agent - let yt-dlp decide
-        'nocheckcertificate': True,
-    }
+        }
+    else:
+        # If no cookies, use android_vr which is better for anonymous extraction
+        ydl_opts['extractor_args'] = {
+            'youtube': {
+                'player_client': ['android_vr', 'web'],
+                'skip': ['hls'],
+            }
+        }
     
     # Add cookies if provided by client
     cookie_file = None
