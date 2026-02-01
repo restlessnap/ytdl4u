@@ -1,11 +1,11 @@
 // Bookmarklet initialization script
-// Version: Stable Modal (Final)
+// Version: Trusted Types Safe (No innerHTML)
 
 document.addEventListener('DOMContentLoaded', () => {
     const bookmarkletLink = document.getElementById('bookmarkletLink');
 
     if (bookmarkletLink) {
-        // This version is focused on 100% stability and avoiding reloads
+        // This version avoids innerHTML entirely to comply with YouTube's Trusted Types security policy
         const code = [
             "(function(){",
             "  try {",
@@ -22,23 +22,22 @@ document.addEventListener('DOMContentLoaded', () => {
             "      }",
             "    }",
             "    if(document.getElementById('ytdl-m')) document.body.removeChild(document.getElementById('ytdl-m'));",
-            "    var d=document.createElement('div');",
-            "    d.id='ytdl-m';",
-            "    d.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:sans-serif;';",
+            "    var d=document.createElement('div'); d.id='ytdl-m';",
+            "    d.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;';",
             "    var m=document.createElement('div');",
             "    m.style.cssText='background:#1a1a2e;color:white;padding:30px;border-radius:20px;width:90%;max-width:500px;box-shadow:0 20px 50px rgba(0,0,0,0.5);border:1px solid #334155;position:relative;';",
-            "    m.innerHTML='<h2 style=\"margin-top:0;color:#667eea\">🎉 Data Ready!</h2>' +",
-            "      '<p style=\"font-size:14px;color:#94a3b8\">Copy the code below and paste it into YTDL4U.</p>' +",
-            "      '<textarea id=\"ytdl-t\" readonly style=\"width:100%;height:180px;background:#0f172a;color:#8f9bff;border:1px solid #334155;border-radius:10px;padding:12px;font-family:monospace;font-size:12px;margin:15px 0;box-sizing:border-box;outline:none\"></textarea>' +",
-            "      '<button id=\"ytdl-b\" style=\"width:100%;padding:14px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer\">📋 Copy to Clipboard</button>' +",
-            "      '<button id=\"ytdl-c\" style=\"position:absolute;top:15px;right:15px;background:none;border:none;color:#64748b;font-size:24px;cursor:pointer\">&times;</button>';",
-            "    d.appendChild(m);",
-            "    document.body.appendChild(d);",
-            "    var tx=document.getElementById('ytdl-t');tx.value=n;",
-            "    document.getElementById('ytdl-c').onclick=function(){document.body.removeChild(d)};",
-            "    var btn=document.getElementById('ytdl-b');",
+            "    var h2=document.createElement('h2'); h2.innerText='🎉 Data Ready!'; h2.style.cssText='margin-top:0;color:#667eea;font-size:24px;';",
+            "    var p1=document.createElement('p'); p1.innerText='Copy the code below and paste it into YTDL4U.'; p1.style.cssText='font-size:14px;color:#94a3b8;margin-bottom:20px;';",
+            "    var tx=document.createElement('textarea'); tx.id='ytdl-t'; tx.readOnly=true; tx.value=n;",
+            "    tx.style.cssText='width:100%;height:180px;background:#0f172a;color:#8f9bff;border:1px solid #334155;border-radius:10px;padding:12px;font-family:monospace;font-size:12px;margin-bottom:20px;box-sizing:border-box;outline:none;';",
+            "    var btn=document.createElement('button'); btn.innerText='📋 Copy to Clipboard';",
+            "    btn.style.cssText='width:100%;padding:16px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;transition:0.2s;';",
+            "    var cls=document.createElement('button'); cls.innerText='×'; ",
+            "    cls.style.cssText='position:absolute;top:15px;right:15px;background:none;border:none;color:#64748b;font-size:28px;cursor:pointer;line-height:1;';",
+            "    cls.onclick=function(){document.body.removeChild(d)};",
             "    btn.onclick=function(){tx.select();document.execCommand('copy');btn.innerText='✅ Copied!';btn.style.background='#22c55e';setTimeout(function(){btn.innerText='📋 Copy to Clipboard';btn.style.background=''},2000)};",
-            "    tx.select();",
+            "    m.appendChild(cls); m.appendChild(h2); m.appendChild(p1); m.appendChild(tx); m.appendChild(btn);",
+            "    d.appendChild(m); document.body.appendChild(d); tx.select();",
             "  } catch(e) { alert('Error: ' + e.message); }",
             "})();"
         ].join("");
@@ -58,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        console.log('✅ Bookmarklet Re-Initialized (Stable)');
+        console.log('✅ Bookmarklet Re-Initialized (Trusted Types Safe)');
     }
 });
 
