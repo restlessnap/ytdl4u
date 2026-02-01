@@ -49,13 +49,22 @@ def get_video_info():
             return jsonify({"error": "URL is required"}), 400
         
         ydl_opts = {
-            'quiet': True,
-            'no_warnings': True,
+            'quiet': False,
+            'no_warnings': False,
             'extract_flat': False,
-            # Bypass bot detection
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
-            'nocheckcertificate': True,
+            # Use Android client - most reliable
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android'],
+                    'player_skip': ['webpage', 'configs'],
+                }
+            },
+            'user_agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
+            'http_headers': {
+                'User-Agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
+                'X-YouTube-Client-Name': '3',
+                'X-YouTube-Client-Version': '19.09.37',
+            },
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -101,29 +110,25 @@ def download_video():
         download_id = str(uuid.uuid4())
         output_template = os.path.join(DOWNLOAD_DIR, f'ytdl4u_{download_id}.%(ext)s')
         
-        # Configure yt-dlp options with bot bypass
+        # Configure yt-dlp options - Use Android client (most reliable)
         ydl_opts = {
             'format': get_format_string(format_type, quality),
             'outtmpl': output_template,
-            'quiet': True,
-            'no_warnings': True,
-            # Bypass YouTube bot detection
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'quiet': False,  # Show errors for debugging
+            'no_warnings': False,
+            # Use ONLY Android client - most reliable against bot detection
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['android', 'web', 'ios'],
-                    'skip': ['hls', 'dash'],
+                    'player_client': ['android'],  # Android only - most reliable
+                    'player_skip': ['webpage', 'configs'],
                 }
             },
-            'nocheckcertificate': True,
-            'geo_bypass': True,
-            'age_limit': None,
-            # Additional options to avoid detection
+            # Simulate Android app
+            'user_agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
             'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'en-us,en;q=0.5',
-                'Sec-Fetch-Mode': 'navigate',
+                'User-Agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
+                'X-YouTube-Client-Name': '3',
+                'X-YouTube-Client-Version': '19.09.37',
             },
         }
         
