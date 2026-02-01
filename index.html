@@ -274,125 +274,130 @@
                         auto-extract your cookie.</p>
 
                     <div class="bookmarklet-container">
-                        <a href="javascript:(function(){const cookie=document.cookie;const match=cookie.match(/VISITOR_INFO1_LIVE=([^;]+)/);if(match){const value=match[1];const win=window.open('','_blank','width=500,height=300');win.document.write('<html><head><title>YouTube Cookie</title><style>body{font-family:system-ui;padding:20px;background:#1a1a2e;color:white;}textarea{width:100%;height:100px;padding:10px;border-radius:8px;border:1px solid #667eea;background:#16213e;color:white;font-family:monospace;}.btn{background:#667eea;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;margin-top:10px;}.btn:hover{background:#764ba2;}</style></head><body><h2>🎉 Cookie Extracted!</h2><p>Copy this value and paste it into YTDL4U:</p><textarea id=\"
-                            cookie\" readonly>'+value+'</textarea><button class=\"btn\"
-                                onclick=\"navigator.clipboard.writeText(document.getElementById(\'cookie\').value);alert(\'Copied
-                                to clipboard!\')\">📋 Copy to Clipboard</button>
-                            <p style=\"color:#888;font-size:12px;margin-top:20px;\">Close this window and paste the
-                                cookie into YTDL4U</p>
-</body>
+                        <a href="#" id="bookmarkletLink" class="bookmarklet-btn" draggable="true">
+                            🔖 YTDL4U Cookie Extractor
+                        </a>
+                        <div class="bookmarklet-arrow">👆 Drag this to your bookmarks bar</div>
 
-</html>');}else{alert('Please run this bookmarklet while on YouTube.com');}})();"
-class="bookmarklet-btn"
-onclick="return false;">
-🔖 YTDL4U Cookie Extractor
-</a>
-<div class="bookmarklet-arrow">👆 Drag this to your bookmarks bar</div>
-</div>
+                        <!-- Manual Fallback -->
+                        <details class="bookmarklet-manual">
+                            <summary>Can't drag the button? Click here</summary>
+                            <div class="manual-code-box">
+                                <p>Copy this code and create a new bookmark with it as the URL:</p>
+                                <textarea id="manualBookmarkletCode" readonly onclick="this.select()"></textarea>
+                                <button class="copy-code-btn" onclick="copyManualCode()">📋 Copy Code</button>
+                            </div>
+                        </details>
+                    </div>
 
-<div class="auth-steps">
-    <div class="auth-step">
-        <div class="auth-step-number">1</div>
-        <div class="auth-step-content">
-            <strong>Drag to Bookmarks</strong>
-            <p>Drag the button above to your browser's bookmarks bar</p>
-        </div>
-    </div>
-    <div class="auth-step">
-        <div class="auth-step-number">2</div>
-        <div class="auth-step-content">
-            <strong>Go to YouTube</strong>
-            <p>Open <a href="https://youtube.com" target="_blank">YouTube.com</a> in a new tab</p>
-        </div>
-    </div>
-    <div class="auth-step">
-        <div class="auth-step-number">3</div>
-        <div class="auth-step-content">
-            <strong>Click Bookmarklet</strong>
-            <p>Click the bookmarklet you just added - your cookie will appear!</p>
-        </div>
-    </div>
-    <div class="auth-step">
-        <div class="auth-step-number">4</div>
-        <div class="auth-step-content">
-            <strong>Paste Below</strong>
-            <p>Copy the cookie value and paste it in the box below</p>
-        </div>
-    </div>
-</div>
-</div>
+                    <div class="auth-steps">
+                        <div class="auth-step">
+                            <div class="auth-step-number">1</div>
+                            <div class="auth-step-content">
+                                <strong>Drag to Bookmarks</strong>
+                                <p>Drag the button above to your browser's bookmarks bar</p>
+                            </div>
+                        </div>
+                        <div class="auth-step">
+                            <div class="auth-step-number">2</div>
+                            <div class="auth-step-content">
+                                <strong>Go to YouTube</strong>
+                                <p>Open <a href="https://youtube.com" target="_blank">YouTube.com</a> in a new tab</p>
+                            </div>
+                        </div>
+                        <div class="auth-step">
+                            <div class="auth-step-number">3</div>
+                            <div class="auth-step-content">
+                                <strong>Click Bookmarklet</strong>
+                                <p>Click the bookmarklet you just added - your cookie will appear!</p>
+                            </div>
+                        </div>
+                        <div class="auth-step">
+                            <div class="auth-step-number">4</div>
+                            <div class="auth-step-content">
+                                <strong>Paste Below</strong>
+                                <p>Copy the cookie value and paste it in the box below</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-<!-- Method 2: Manual Paste (Fallback) -->
-<div class="auth-method">
-    <h3>Method 2: Manual Copy-Paste</h3>
-    <p class="auth-method-desc">If the bookmarklet doesn't work, you can manually copy your cookie.</p>
+                <!-- Method 2: Manual Paste (Fallback) -->
+                <div class="auth-method">
+                    <h3>Method 2: Manual Copy-Paste</h3>
+                    <p class="auth-method-desc">If the bookmarklet doesn't work, you can manually copy your cookie.</p>
 
-    <div class="manual-steps">
-        <details>
-            <summary>Show manual instructions</summary>
-            <div class="manual-content">
-                <ol>
-                    <li>Go to <a href="https://youtube.com" target="_blank">YouTube.com</a></li>
-                    <li>Press <kbd>F12</kbd> to open Developer Tools</li>
-                    <li>Click the <strong>Application</strong> tab (or <strong>Storage</strong> in Firefox)</li>
-                    <li>Expand <strong>Cookies</strong> → <strong>https://www.youtube.com</strong></li>
-                    <li>Find the cookie named <code>VISITOR_INFO1_LIVE</code></li>
-                    <li>Double-click the <strong>Value</strong> column and copy it</li>
-                    <li>Paste it in the box below</li>
-                </ol>
+                    <div class="manual-steps">
+                        <details>
+                            <summary>Show manual instructions</summary>
+                            <div class="manual-content">
+                                <ol>
+                                    <li>Go to <a href="https://youtube.com" target="_blank">YouTube.com</a></li>
+                                    <li>Press <kbd>F12</kbd> to open Developer Tools</li>
+                                    <li>Click the <strong>Application</strong> tab (or <strong>Storage</strong> in
+                                        Firefox)</li>
+                                    <li>Expand <strong>Cookies</strong> → <strong>https://www.youtube.com</strong></li>
+                                    <li>Find the cookie named <code>VISITOR_INFO1_LIVE</code></li>
+                                    <li>Double-click the <strong>Value</strong> column and copy it</li>
+                                    <li>Paste it in the box below</li>
+                                </ol>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <!-- Cookie Input -->
+                <div class="auth-cookie-input">
+                    <label for="cookieInput">Paste your YouTube cookie here:</label>
+                    <textarea id="cookieInput" placeholder="Paste VISITOR_INFO1_LIVE cookie value here..." rows="3"
+                        onpaste="handleCookiePaste(event)"></textarea>
+                    <button class="auth-submit-btn" onclick="submitCookie()">
+                        🔓 Authenticate & Download
+                    </button>
+                    <div id="cookieInputStatus" class="auth-input-status hidden"></div>
+                </div>
+
+                <div class="auth-alternative">
+                    <p>Having trouble?</p>
+                    <button class="auth-alt-btn" onclick="tryWithoutAuth()">
+                        Try without authentication (may not work)
+                    </button>
+                </div>
             </div>
-        </details>
-    </div>
-</div>
 
-<!-- Cookie Input -->
-<div class="auth-cookie-input">
-    <label for="cookieInput">Paste your YouTube cookie here:</label>
-    <textarea id="cookieInput" placeholder="Paste VISITOR_INFO1_LIVE cookie value here..." rows="3"
-        onpaste="handleCookiePaste(event)"></textarea>
-    <button class="auth-submit-btn" onclick="submitCookie()">
-        🔓 Authenticate & Download
-    </button>
-    <div id="cookieInputStatus" class="auth-input-status hidden"></div>
-</div>
-
-<div class="auth-alternative">
-    <p>Having trouble?</p>
-    <button class="auth-alt-btn" onclick="tryWithoutAuth()">
-        Try without authentication (may not work)
-    </button>
-</div>
-</div>
-
-<div class="auth-modal-footer">
-    <div class="auth-trust-badges">
-        <div class="trust-badge">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-            </svg>
-            <span>Client-Side Only</span>
-        </div>
-        <div class="trust-badge">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-            <span>Open Source</span>
-        </div>
-        <div class="trust-badge">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span>No Tracking</span>
+            <div class="auth-modal-footer">
+                <div class="auth-trust-badges">
+                    <div class="trust-badge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        <span>Client-Side Only</span>
+                    </div>
+                    <div class="trust-badge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <span>Open Source</span>
+                    </div>
+                    <div class="trust-badge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>No Tracking</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-</div>
-</div>
 
-<!-- Auth Logic -->
-<script src="auth-v2.js"></script>
-<script src="app.js"></script>
+    <!-- Auth Logic -->
+    <script src="bookmarklet-init.js"></script>
+    <script src="auth-v2.js"></script>
+    <script src="app.js"></script>
 </body>
 
 </html>
