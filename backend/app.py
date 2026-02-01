@@ -194,6 +194,8 @@ def download_with_fallback(url, format_type, quality):
     """Fallback download using third-party API (privacy-friendly)"""
     import requests
     
+    print(f"Attempting fallback download for: {url}")
+    
     # Use Cobalt API - privacy-friendly, no cookies needed
     cobalt_api = "https://api.cobalt.tools/api/json"
     
@@ -210,18 +212,48 @@ def download_with_fallback(url, format_type, quality):
     payload = {
         "url": url,
         "vQuality": quality_map.get(quality, '1080'),
-        "aFormat": "mp3" if format_type == 'mp3' else "best",
         "filenamePattern": "basic",
         "isAudioOnly": format_type == 'mp3'
     }
     
-    response = requests.post(cobalt_api, json=payload, timeout=30)
+    print(f"Cobalt API request: {payload}")
     
-    if response.status_code == 200:
-        result = response.json()
+    try:
+        response = requests.post(
+            cobalt_api, 
+            json=payload, 
+            headers={
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            timeout=30
+        )
         
-        if result.get('status') == 'redirect' or result.get('status') == 'stream':
-            download_url = result.get('url')
+        print(f"Cobalt response status: {response.status_code}")
+        print(f"Cobalt response: {response.text[:500]}")  # First 500 chars
+        
+        if response.status_code == 200:
+            result = response.json()
+            
+            # Cobalt returns different status types
+            if result.get('status') == 'redirect':
+                download_url = result.get('url')
+            elif result.get('status') == 'stream':
+                download_url = result.get('url')
+            elif result.get('status') == 'picker':
+                # Multiple quality options - pick first one
+                picker = result.get('picker', [])
+                if picker and len(picker) > 0:
+                    download_url = picker[0].get('url')
+                else:
+                    raise Exception("No download URL in picker response")
+            else:
+                raise Exception(f"Unexpected Cobalt status: {result.get('status')}")
+            
+            if not download_url:
+                raise Exception("No download URL in Cobalt response")
+            
+            print(f"Got download URL from Cobalt: {download_url[:100]}...")
             
             # Download the file from Cobalt
             download_id = str(uuid.uuid4())
@@ -229,11 +261,18 @@ def download_with_fallback(url, format_type, quality):
             filename = f'ytdl4u_{download_id}.{ext}'
             filepath = os.path.join(DOWNLOAD_DIR, filename)
             
+            print(f"Downloading file to: {filepath}")
+            
             # Stream download
-            file_response = requests.get(download_url, stream=True, timeout=60)
+            file_response = requests.get(download_url, stream=True, timeout=120)
+            file_response.raise_for_status()
+            
             with open(filepath, 'wb') as f:
                 for chunk in file_response.iter_content(chunk_size=8192):
-                    f.write(chunk)
+                    if chunk:
+                        f.write(chunk)
+            
+            print(f"Download complete: {filepath}")
             
             return jsonify({
                 "success": True,
@@ -242,8 +281,15 @@ def download_with_fallback(url, format_type, quality):
                 "filename": f"video.{ext}",
                 "downloadUrl": f"/api/file/{download_id}"
             })
+        else:
+            raise Exception(f"Cobalt API returned status {response.status_code}: {response.text[:200]}")
     
-    raise Exception("Fallback API failed")
+    except requests.exceptions.Timeout:
+        raise Exception("Cobalt API timeout - try again later")
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Cobalt API request failed: {str(e)}")
+    except Exception as e:
+        raise Exception(f"Cobalt fallback error: {str(e)}")
 
 @app.route('/api/file/<download_id>', methods=['GET'])
 def get_file(download_id):
