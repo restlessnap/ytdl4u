@@ -97,13 +97,14 @@ def download_video():
         url = data.get('url')
         format_type = data.get('format', 'mp4')
         quality = data.get('quality', '1080')
+        cookies_text = data.get('cookies')  # Client-provided cookies
         
         if not url:
             return jsonify({"error": "URL is required"}), 400
         
         # Try yt-dlp first
         try:
-            return download_with_ytdlp(url, format_type, quality)
+            return download_with_ytdlp(url, format_type, quality, cookies_text)
         except Exception as ytdlp_error:
             error_msg = str(ytdlp_error)
             print(f"yt-dlp failed: {error_msg}")
@@ -116,16 +117,16 @@ def download_video():
                 except Exception as fallback_error:
                     print(f"Fallback also failed: {fallback_error}")
                     return jsonify({
-                        "error": "Unable to download. YouTube has blocked automated downloads. Try a different video or try again later."
-                    }), 500
+                        "error": "Authentication required. Please provide YouTube cookies to download this video."
+                    }), 401  # 401 = Unauthorized
             else:
                 raise ytdlp_error
             
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def download_with_ytdlp(url, format_type, quality):
-    """Download using yt-dlp"""
+def download_with_ytdlp(url, format_type, quality, cookies_text=None):
+    """Download using yt-dlp with optional cookies"""
     # Generate unique filename
     download_id = str(uuid.uuid4())
     output_template = os.path.join(DOWNLOAD_DIR, f'ytdl4u_{download_id}.%(ext)s')
@@ -147,6 +148,16 @@ def download_with_ytdlp(url, format_type, quality):
         'nocheckcertificate': True,
     }
     
+    # Add cookies if provided by client
+    cookie_file = None
+    if cookies_text:
+        # Create temporary cookie file
+        cookie_file = os.path.join(DOWNLOAD_DIR, f'cookies_{download_id}.txt')
+        with open(cookie_file, 'w') as f:
+            f.write(cookies_text)
+        ydl_opts['cookiefile'] = cookie_file
+        print(f"Using client-provided cookies from: {cookie_file}")
+    
     # Add audio-specific options for MP3
     if format_type == 'mp3':
         ydl_opts.update({
@@ -158,27 +169,36 @@ def download_with_ytdlp(url, format_type, quality):
             }],
         })
     
-    # Download the video
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
-        title = info.get('title', 'video')
-        
-        # Find the downloaded file
-        if format_type == 'mp3':
-            filename = f'ytdl4u_{download_id}.mp3'
-        else:
-            filename = f'ytdl4u_{download_id}.{info.get("ext", "mp4")}'
-        
-        filepath = os.path.join(DOWNLOAD_DIR, filename)
-        
-        # Return download URL (for direct download)
-        return jsonify({
-            "success": True,
-            "title": title,
-            "downloadId": download_id,
-            "filename": f"{sanitize_filename(title)}.{format_type}",
-            "downloadUrl": f"/api/file/{download_id}"
-        })
+    try:
+        # Download the video
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+            title = info.get('title', 'video')
+            
+            # Find the downloaded file
+            if format_type == 'mp3':
+                filename = f'ytdl4u_{download_id}.mp3'
+            else:
+                filename = f'ytdl4u_{download_id}.{info.get("ext", "mp4")}'
+            
+            filepath = os.path.join(DOWNLOAD_DIR, filename)
+            
+            # Return download URL (for direct download)
+            return jsonify({
+                "success": True,
+                "title": title,
+                "downloadId": download_id,
+                "filename": f"{sanitize_filename(title)}.{format_type}",
+                "downloadUrl": f"/api/file/{download_id}"
+            })
+    finally:
+        # Clean up temporary cookie file
+        if cookie_file and os.path.exists(cookie_file):
+            try:
+                os.remove(cookie_file)
+                print(f"Cleaned up cookie file: {cookie_file}")
+            except Exception as e:
+                print(f"Failed to clean up cookie file: {e}")
 
 def download_with_fallback(url, format_type, quality):
     """Fallback download using third-party API (privacy-friendly)"""
