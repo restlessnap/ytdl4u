@@ -1,0 +1,246 @@
+/* Additional styles for bookmarklet version */
+
+.auth-method {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    position: relative;
+}
+
+.auth-method-badge {
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.auth-method-badge.recommended {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.auth-method h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: white;
+}
+
+.auth-method-desc {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    margin: 0 0 20px;
+}
+
+.bookmarklet-container {
+    text-align: center;
+    padding: 30px;
+    background: rgba(102, 126, 234, 0.1);
+    border: 2px dashed rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.bookmarklet-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 32px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 16px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    cursor: move;
+}
+
+.bookmarklet-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.bookmarklet-arrow {
+    margin-top: 15px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.manual-steps details {
+    margin-top: 15px;
+}
+
+.manual-steps summary {
+    color: #667eea;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.manual-steps summary:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.manual-content {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+}
+
+.manual-content ol {
+    margin: 0;
+    padding-left: 20px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.manual-content li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.manual-content kbd {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.manual-content code {
+    background: rgba(102, 126, 234, 0.2);
+    color: #667eea;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.manual-content a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.manual-content a:hover {
+    text-decoration: underline;
+}
+
+.manual-help {
+    margin-top: 15px;
+}
+
+.auth-cookie-input {
+    margin-top: 30px;
+}
+
+.auth-cookie-input label {
+    display: block;
+    color: white;
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.auth-cookie-input textarea {
+    width: 100%;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-family: monospace;
+    font-size: 13px;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+}
+
+.auth-cookie-input textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.auth-cookie-input textarea::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.auth-submit-btn {
+    width: 100%;
+    margin-top: 15px;
+    padding: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.auth-submit-btn:active {
+    transform: translateY(0);
+}
+
+.auth-input-status {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.auth-input-status.success {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #22c55e;
+}
+
+.auth-input-status.error {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+.auth-input-status.info {
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: #3b82f6;
+}

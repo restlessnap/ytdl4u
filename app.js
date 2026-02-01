@@ -229,7 +229,7 @@ function renderQueue() {
     `).join('');
 }
 
-// ===== Download Processing =====
+// ===== Download Processing with Authentication =====
 async function processDownload(item) {
     try {
         // Update status to downloading
@@ -242,6 +242,16 @@ async function processDownload(item) {
         item.progress = 10;
         renderQueue();
 
+        // Get cookie if available
+        const cookie = sessionStorage.getItem('ytdl_cookie');
+
+        // Build cookies.txt format if we have a cookie
+        let cookiesText = null;
+        if (cookie) {
+            // Create Netscape cookie format for yt-dlp
+            cookiesText = `.youtube.com\tTRUE\t/\tTRUE\t0\tVISITOR_INFO1_LIVE\t${cookie}`;
+        }
+
         // Make API request to download service
         const response = await fetch(`${API_URL}/api/download`, {
             method: 'POST',
@@ -251,12 +261,25 @@ async function processDownload(item) {
             body: JSON.stringify({
                 url: item.url,
                 format: item.format,
-                quality: item.quality
+                quality: item.quality,
+                cookies: cookiesText  // Send cookie in Netscape format
             })
         });
 
         if (!response.ok) {
             const errorData = await response.json();
+
+            // If bot detection or 401 Unauthorized, show auth modal
+            if ((errorData.error && (errorData.error.includes('bot') || errorData.error.includes('Authentication required'))) || response.status === 401) {
+                if (!cookie) {
+                    // Show auth modal
+                    if (typeof showAuthModal === 'function') {
+                        showAuthModal();
+                    }
+                    throw new Error('Authentication required. Please provide your YouTube cookie.');
+                }
+            }
+
             throw new Error(errorData.error || 'Download failed');
         }
 
