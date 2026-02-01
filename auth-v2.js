@@ -98,13 +98,19 @@ async function processDownloadWithAuth(item) {
 
         const cookie = getCookie();
 
-        // Build cookies.txt format if we have a cookie
+        // Intelligent Cookie Handling
         let cookiesText = null;
         if (cookie) {
-            // Create Netscape cookie format for yt-dlp
-            cookiesText = `# Netscape HTTP Cookie File\n` +
-                `.youtube.com\tTRUE\t/\tTRUE\t0\tVISITOR_INFO1_LIVE\t${cookie}\n` +
-                `www.youtube.com\tTRUE\t/\tTRUE\t0\tVISITOR_INFO1_LIVE\t${cookie}`;
+            if (cookie.includes('# Netscape')) {
+                // User pasted a full Netscape file (Super Extractor output)
+                cookiesText = cookie;
+            } else {
+                // User pasted a single value (Manual Paste)
+                // Fix: Domain starts with dot -> True, Domain no dot -> False
+                cookiesText = `# Netscape HTTP Cookie File\n` +
+                    `.youtube.com\tTRUE\t/\tTRUE\t2147483647\tVISITOR_INFO1_LIVE\t${cookie}\n` +
+                    `www.youtube.com\tFALSE\t/\tTRUE\t2147483647\tVISITOR_INFO1_LIVE\t${cookie}`;
+            }
         }
 
         const response = await fetch(`${API_URL}/api/download`, {
