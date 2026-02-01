@@ -98,15 +98,26 @@ async function processDownloadWithAuth(item) {
 
         const cookie = getCookie();
 
-        // Intelligent Cookie Handling
         let cookiesText = null;
+        let poToken = null;
+        let visitorData = null;
+
         if (cookie) {
-            if (cookie.includes('# Netscape')) {
-                // User pasted a full Netscape file (Super Extractor output)
+            // Check for PO Token and Visitor Data first (Higher priority bypass)
+            if (cookie.includes('po_token:')) {
+                const poMatch = cookie.match(/po_token:\s*([^\n\r]+)/);
+                const visitorMatch = cookie.match(/visitor_data:\s*([^\n\r]+)/);
+                if (poMatch) poToken = poMatch[1].trim();
+                if (visitorMatch) visitorData = visitorMatch[1].trim();
+
+                // Also get the cookie part as backup
+                if (cookie.includes('# Netscape') || cookie.includes('VISITOR_INFO1_LIVE')) {
+                    const cookiePart = cookie.split('# Full Session')[1] || cookie;
+                    cookiesText = cookiePart.includes('# Netscape') ? cookiePart : null;
+                }
+            } else if (cookie.includes('# Netscape')) {
                 cookiesText = cookie;
             } else {
-                // User pasted a single value (Manual Paste)
-                // Fix: Domain starts with dot -> True, Domain no dot -> False
                 cookiesText = `# Netscape HTTP Cookie File\n` +
                     `.youtube.com\tTRUE\t/\tTRUE\t2147483647\tVISITOR_INFO1_LIVE\t${cookie}\n` +
                     `www.youtube.com\tFALSE\t/\tTRUE\t2147483647\tVISITOR_INFO1_LIVE\t${cookie}`;
@@ -122,7 +133,9 @@ async function processDownloadWithAuth(item) {
                 url: item.url,
                 format: item.format,
                 quality: item.quality,
-                cookies: cookiesText  // Send cookie in Netscape format
+                cookies: cookiesText,
+                po_token: poToken,
+                visitor_data: visitorData
             })
         });
 

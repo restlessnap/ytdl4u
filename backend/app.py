@@ -48,19 +48,27 @@ def get_video_info():
         if not url:
             return jsonify({"error": "URL is required"}), 400
         
+        po_token = request.args.get('po_token')
+        visitor_data = request.args.get('visitor_data')
+        
         ydl_opts = {
             'quiet': False,
             'no_warnings': False,
             'extract_flat': False,
-            # Use android_vr - matches working local config
-            'extractor_args': {
-                'youtube': {
-                    'player_client': ['android_vr', 'web'],
-                    'skip': ['hls'],
-                }
-            },
             'nocheckcertificate': True,
         }
+        
+        # Apply extraction strategy
+        youtube_args = {'skip': ['hls']}
+        if po_token:
+            youtube_args['player_client'] = ['web']
+            youtube_args['po_token'] = f"web+{po_token}"
+            if visitor_data:
+                youtube_args['visitor_data'] = visitor_data
+        else:
+            youtube_args['player_client'] = ['android_vr', 'web']
+            
+        ydl_opts['extractor_args'] = {'youtube': youtube_args}
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
@@ -97,14 +105,16 @@ def download_video():
         url = data.get('url')
         format_type = data.get('format', 'mp4')
         quality = data.get('quality', '1080')
-        cookies_text = data.get('cookies')  # Client-provided cookies
+        cookies_text = data.get('cookies')
+        po_token = data.get('po_token')
+        visitor_data = data.get('visitor_data')
         
         if not url:
             return jsonify({"error": "URL is required"}), 400
         
         # Try yt-dlp first
         try:
-            return download_with_ytdlp(url, format_type, quality, cookies_text)
+            return download_with_ytdlp(url, format_type, quality, cookies_text, po_token, visitor_data)
         except Exception as ytdlp_error:
             error_msg = str(ytdlp_error)
             print(f"yt-dlp failed: {error_msg}")
@@ -125,13 +135,13 @@ def download_video():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def download_with_ytdlp(url, format_type, quality, cookies_text=None):
-    """Download using yt-dlp with optional cookies"""
+def download_with_ytdlp(url, format_type, quality, cookies_text=None, po_token=None, visitor_data=None):
+    """Download using yt-dlp with optional credentials"""
     # Generate unique filename
     download_id = str(uuid.uuid4())
     output_template = os.path.join(DOWNLOAD_DIR, f'ytdl4u_{download_id}.%(ext)s')
     
-    # Get User-Agent from client to match cookies
+    # Get User-Agent from client to match cookies/session
     user_agent = request.headers.get('User-Agent')
     
     # Configure yt-dlp options
@@ -141,26 +151,26 @@ def download_with_ytdlp(url, format_type, quality, cookies_text=None):
         'quiet': False,
         'no_warnings': False,
         'nocheckcertificate': True,
-        'user_agent': user_agent,  # Match the browser that exported the cookies
+        'user_agent': user_agent,
     }
     
     # Adjust extraction strategy based on authentication
+    # Priority: Cookies (Session) > PO Token (Challenge) > Anonymous
+    youtube_args = {'skip': ['hls']}
+    
     if cookies_text:
-        # If we have cookies, use standard web clients which are more stable with sessions
-        ydl_opts['extractor_args'] = {
-            'youtube': {
-                'player_client': ['web', 'mweb', 'ios'],
-                'skip': ['hls'],
-            }
-        }
+        youtube_args['player_client'] = ['web', 'mweb', 'ios']
+    elif po_token:
+        # Use web client with PO Token
+        youtube_args['player_client'] = ['web']
+        youtube_args['po_token'] = f"web+{po_token}"
+        if visitor_data:
+            youtube_args['visitor_data'] = visitor_data
     else:
-        # If no cookies, use android_vr which is better for anonymous extraction
-        ydl_opts['extractor_args'] = {
-            'youtube': {
-                'player_client': ['android_vr', 'web'],
-                'skip': ['hls'],
-            }
-        }
+        # Fallback to android_vr for anonymous
+        youtube_args['player_client'] = ['android_vr', 'web']
+        
+    ydl_opts['extractor_args'] = {'youtube': youtube_args}
     
     # Add cookies if provided by client
     cookie_file = None
