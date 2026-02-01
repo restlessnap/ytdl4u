@@ -1,7 +1,7 @@
-// ===== Configuration =====
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:10000'  // Local development
-    : 'https://ytdl4u-backend.onrender.com';  // Production - Render.com backend
+const API_URL = 'https://ytdl4u-backend.onrender.com'; // Production - Render.com backend
+// const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+//     ? 'http://localhost:10000'  // Local development
+//     : 'https://ytdl4u-backend.onrender.com';  // Production - Render.com backend
 
 // ===== State Management =====
 const state = {
