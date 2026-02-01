@@ -106,67 +106,144 @@ def download_video():
         if not url:
             return jsonify({"error": "URL is required"}), 400
         
-        # Generate unique filename
-        download_id = str(uuid.uuid4())
-        output_template = os.path.join(DOWNLOAD_DIR, f'ytdl4u_{download_id}.%(ext)s')
-        
-        # Configure yt-dlp options - Use Android client (most reliable)
-        ydl_opts = {
-            'format': get_format_string(format_type, quality),
-            'outtmpl': output_template,
-            'quiet': False,  # Show errors for debugging
-            'no_warnings': False,
-            # Use ONLY Android client - most reliable against bot detection
-            'extractor_args': {
-                'youtube': {
-                    'player_client': ['android'],  # Android only - most reliable
-                    'player_skip': ['webpage', 'configs'],
-                }
-            },
-            # Simulate Android app
-            'user_agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
-            'http_headers': {
-                'User-Agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
-                'X-YouTube-Client-Name': '3',
-                'X-YouTube-Client-Version': '19.09.37',
-            },
-        }
-        
-        # Add audio-specific options for MP3
-        if format_type == 'mp3':
-            ydl_opts.update({
-                'format': 'bestaudio/best',
-                'postprocessors': [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3',
-                    'preferredquality': quality,
-                }],
-            })
-        
-        # Download the video
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            title = info.get('title', 'video')
+        # Try yt-dlp first
+        try:
+            return download_with_ytdlp(url, format_type, quality)
+        except Exception as ytdlp_error:
+            error_msg = str(ytdlp_error)
+            print(f"yt-dlp failed: {error_msg}")
             
-            # Find the downloaded file
-            if format_type == 'mp3':
-                filename = f'ytdl4u_{download_id}.mp3'
+            # If bot detection error, try fallback API
+            if 'bot' in error_msg.lower() or 'sign in' in error_msg.lower():
+                print("Bot detection - trying fallback API...")
+                try:
+                    return download_with_fallback(url, format_type, quality)
+                except Exception as fallback_error:
+                    print(f"Fallback also failed: {fallback_error}")
+                    return jsonify({
+                        "error": "Unable to download. YouTube has blocked automated downloads. Try a different video or try again later."
+                    }), 500
             else:
-                filename = f'ytdl4u_{download_id}.{info.get("ext", "mp4")}'
-            
-            filepath = os.path.join(DOWNLOAD_DIR, filename)
-            
-            # Return download URL (for direct download)
-            return jsonify({
-                "success": True,
-                "title": title,
-                "downloadId": download_id,
-                "filename": f"{sanitize_filename(title)}.{format_type}",
-                "downloadUrl": f"/api/file/{download_id}"
-            })
+                raise ytdlp_error
             
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+def download_with_ytdlp(url, format_type, quality):
+    """Download using yt-dlp"""
+    # Generate unique filename
+    download_id = str(uuid.uuid4())
+    output_template = os.path.join(DOWNLOAD_DIR, f'ytdl4u_{download_id}.%(ext)s')
+    
+    # Configure yt-dlp options - Use Android client (most reliable)
+    ydl_opts = {
+        'format': get_format_string(format_type, quality),
+        'outtmpl': output_template,
+        'quiet': False,  # Show errors for debugging
+        'no_warnings': False,
+        # Use ONLY Android client - most reliable against bot detection
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android'],  # Android only - most reliable
+                'player_skip': ['webpage', 'configs'],
+            }
+        },
+        # Simulate Android app
+        'user_agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
+        'http_headers': {
+            'User-Agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
+            'X-YouTube-Client-Name': '3',
+            'X-YouTube-Client-Version': '19.09.37',
+        },
+    }
+    
+    # Add audio-specific options for MP3
+    if format_type == 'mp3':
+        ydl_opts.update({
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': quality,
+            }],
+        })
+    
+    # Download the video
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        title = info.get('title', 'video')
+        
+        # Find the downloaded file
+        if format_type == 'mp3':
+            filename = f'ytdl4u_{download_id}.mp3'
+        else:
+            filename = f'ytdl4u_{download_id}.{info.get("ext", "mp4")}'
+        
+        filepath = os.path.join(DOWNLOAD_DIR, filename)
+        
+        # Return download URL (for direct download)
+        return jsonify({
+            "success": True,
+            "title": title,
+            "downloadId": download_id,
+            "filename": f"{sanitize_filename(title)}.{format_type}",
+            "downloadUrl": f"/api/file/{download_id}"
+        })
+
+def download_with_fallback(url, format_type, quality):
+    """Fallback download using third-party API (privacy-friendly)"""
+    import requests
+    
+    # Use Cobalt API - privacy-friendly, no cookies needed
+    cobalt_api = "https://api.cobalt.tools/api/json"
+    
+    # Map our quality to Cobalt's format
+    quality_map = {
+        '2160': '2160',
+        '1440': '1440',
+        '1080': '1080',
+        '720': '720',
+        '480': '480',
+        '360': '360'
+    }
+    
+    payload = {
+        "url": url,
+        "vQuality": quality_map.get(quality, '1080'),
+        "aFormat": "mp3" if format_type == 'mp3' else "best",
+        "filenamePattern": "basic",
+        "isAudioOnly": format_type == 'mp3'
+    }
+    
+    response = requests.post(cobalt_api, json=payload, timeout=30)
+    
+    if response.status_code == 200:
+        result = response.json()
+        
+        if result.get('status') == 'redirect' or result.get('status') == 'stream':
+            download_url = result.get('url')
+            
+            # Download the file from Cobalt
+            download_id = str(uuid.uuid4())
+            ext = 'mp3' if format_type == 'mp3' else 'mp4'
+            filename = f'ytdl4u_{download_id}.{ext}'
+            filepath = os.path.join(DOWNLOAD_DIR, filename)
+            
+            # Stream download
+            file_response = requests.get(download_url, stream=True, timeout=60)
+            with open(filepath, 'wb') as f:
+                for chunk in file_response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            
+            return jsonify({
+                "success": True,
+                "title": f"Video_{download_id}",
+                "downloadId": download_id,
+                "filename": f"video.{ext}",
+                "downloadUrl": f"/api/file/{download_id}"
+            })
+    
+    raise Exception("Fallback API failed")
 
 @app.route('/api/file/<download_id>', methods=['GET'])
 def get_file(download_id):
