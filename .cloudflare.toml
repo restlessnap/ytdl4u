@@ -1,0 +1,8 @@
+# Cloudflare Pages build configuration
+
+[build]
+  command = ""
+  publish = "."
+
+[build.environment]
+  NODE_VERSION = "18"

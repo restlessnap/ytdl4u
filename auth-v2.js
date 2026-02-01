@@ -60,7 +60,11 @@ function submitCookie() {
         userCookie = value;
 
         statusDiv.classList.add('success');
-        statusDiv.textContent = '✅ Authentication successful! You can now download videos.';
+        if (value.includes('po_token:')) {
+            statusDiv.textContent = '🚀 PO Token Authentication Ready! Re-trying download...';
+        } else {
+            statusDiv.textContent = '✅ Authentication successful! You can now download videos.';
+        }
 
         showToast('🎉 Authenticated! Cookies will be deleted when you close this tab.', 'success');
 
@@ -107,13 +111,16 @@ async function processDownloadWithAuth(item) {
             if (cookie.includes('po_token:')) {
                 const poMatch = cookie.match(/po_token:\s*([^\n\r]+)/);
                 const visitorMatch = cookie.match(/visitor_data:\s*([^\n\r]+)/);
-                if (poMatch) poToken = poMatch[1].trim();
+
+                // Only set if it's a real token, not a placeholder
+                if (poMatch && !poMatch[1].includes('AUTO_GENERATED')) {
+                    poToken = poMatch[1].trim();
+                }
                 if (visitorMatch) visitorData = visitorMatch[1].trim();
 
-                // Also get the cookie part as backup
-                if (cookie.includes('# Netscape') || cookie.includes('VISITOR_INFO1_LIVE')) {
-                    const cookiePart = cookie.split('# Full Session')[1] || cookie;
-                    cookiesText = cookiePart.includes('# Netscape') ? cookiePart : null;
+                // Extract cookie part if it exists
+                if (cookie.includes('# Netscape')) {
+                    cookiesText = '# Netscape' + cookie.split('# Netscape')[1];
                 }
             } else if (cookie.includes('# Netscape')) {
                 cookiesText = cookie;

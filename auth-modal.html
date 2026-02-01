@@ -1,0 +1,134 @@
+<!-- YouTube Authentication Modal -->
+<div id="authModal" class="auth-modal hidden">
+    <div class="auth-modal-overlay"></div>
+    <div class="auth-modal-content">
+        <button class="auth-modal-close" onclick="closeAuthModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        <div class="auth-modal-header">
+            <div class="auth-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+            </div>
+            <h2>YouTube Authentication Required</h2>
+            <p class="auth-subtitle">YouTube requires authentication to download videos</p>
+        </div>
+
+        <div class="auth-modal-body">
+            <div class="auth-info-card">
+                <div class="auth-info-icon">🔒</div>
+                <div class="auth-info-content">
+                    <h3>Your Privacy Matters</h3>
+                    <ul class="auth-privacy-list">
+                        <li>✅ Cookies stored <strong>only in your browser</strong></li>
+                        <li>✅ <strong>Never sent to our servers</strong></li>
+                        <li>✅ <strong>Deleted when you close the tab</strong></li>
+                        <li>✅ Used <strong>only for downloads</strong></li>
+                        <li>✅ <strong>No tracking or data collection</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="auth-steps">
+                <h3>How it works:</h3>
+                <div class="auth-step">
+                    <div class="auth-step-number">1</div>
+                    <div class="auth-step-content">
+                        <strong>Install Extension</strong>
+                        <p>Install a browser extension to export your YouTube cookies</p>
+                    </div>
+                </div>
+                <div class="auth-step">
+                    <div class="auth-step-number">2</div>
+                    <div class="auth-step-content">
+                        <strong>Export Cookies</strong>
+                        <p>Click the extension while on YouTube.com to export cookies</p>
+                    </div>
+                </div>
+                <div class="auth-step">
+                    <div class="auth-step-number">3</div>
+                    <div class="auth-step-content">
+                        <strong>Upload Here</strong>
+                        <p>Upload the cookie file - it stays in your browser only</p>
+                    </div>
+                </div>
+                <div class="auth-step">
+                    <div class="auth-step-number">4</div>
+                    <div class="auth-step-content">
+                        <strong>Download Videos</strong>
+                        <p>Downloads will work until you close this tab</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-extension-links">
+                <h3>Get Cookie Extension:</h3>
+                <div class="auth-extension-buttons">
+                    <a href="https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc"
+                        target="_blank" class="auth-extension-btn chrome">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                        Chrome / Edge
+                    </a>
+                    <a href="https://addons.mozilla.org/en-US/firefox/addon/cookies-txt/" target="_blank"
+                        class="auth-extension-btn firefox">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                        </svg>
+                        Firefox
+                    </a>
+                </div>
+            </div>
+
+            <div class="auth-upload-section">
+                <label for="cookieFileInput" class="auth-upload-label">
+                    <div class="auth-upload-icon">📁</div>
+                    <div class="auth-upload-text">
+                        <strong>Click to upload cookies.txt</strong>
+                        <span>Or drag and drop here</span>
+                    </div>
+                    <input type="file" id="cookieFileInput" accept=".txt" onchange="handleCookieUpload(event)"
+                        style="display: none;">
+                </label>
+                <div id="cookieUploadStatus" class="auth-upload-status hidden"></div>
+            </div>
+
+            <div class="auth-alternative">
+                <p>Don't want to use cookies?</p>
+                <button class="auth-alt-btn" onclick="tryWithoutAuth()">
+                    Try without authentication (may not work)
+                </button>
+            </div>
+        </div>
+
+        <div class="auth-modal-footer">
+            <div class="auth-trust-badges">
+                <div class="trust-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    <span>Client-Side Only</span>
+                </div>
+                <div class="trust-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>Open Source</span>
+                </div>
+                <div class="trust-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>No Tracking</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

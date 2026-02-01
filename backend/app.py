@@ -136,22 +136,29 @@ def download_video():
         return jsonify({"error": str(e)}), 500
 
 def get_automatic_po_token():
-    """Fetch an automatic PO Token from a community provider"""
+    """Fetch an automatic PO Token from community providers"""
     providers = [
+        "https://yt-dlp-pot.vanced.xyz/api/v1/pot", # High reliability vanced provider
+        "https://pot.vanced.xyz/api/v1/pot",
         "https://yt-dlp-pot.vanced.xyz",
         "https://pot.vanced.xyz"
     ]
     
     for url in providers:
         try:
-            response = requests.get(url, timeout=5)
+            print(f"Trying PO Token provider: {url}")
+            response = requests.get(url, timeout=4)
             if response.status_code == 200:
                 data = response.json()
-                if 'po_token' in data and 'visitor_data' in data:
-                    print(f"✅ Successfully acquired automatic PO Token from {url}")
-                    return data['po_token'], data['visitor_data']
+                # Handle different API response structures
+                po = data.get('po_token') or data.get('poToken')
+                visitor = data.get('visitor_data') or data.get('visitorData')
+                
+                if po and visitor:
+                    print(f"✅ Successfully acquired PO Token from {url}")
+                    return po, visitor
         except Exception as e:
-            print(f"⚠️ Failed to fetch token from {url}: {e}")
+            print(f"⚠️ Failed to fetch from {url}: {e}")
     
     return None, None
 
@@ -206,12 +213,24 @@ def download_with_ytdlp(url, format_type, quality, cookies_text=None, po_token=N
     # Add cookies if provided by client
     cookie_file = None
     if cookies_text:
-        # Create temporary cookie file
-        cookie_file = os.path.join(DOWNLOAD_DIR, f'cookies_{download_id}.txt')
-        with open(cookie_file, 'w') as f:
-            f.write(cookies_text)
-        ydl_opts['cookiefile'] = cookie_file
-        print(f"Using client-provided cookies from: {cookie_file}")
+        # Clean the cookie text: Only keep lines that start with # or have 7 tab-separated fields
+        # or it's a standard key=value cookie string we wrap
+        cleaned_lines = []
+        for line in cookies_text.splitlines():
+            line = line.strip()
+            if not line or line.startswith('po_token:') or line.startswith('visitor_data:') or line.startswith('# PO TOKEN'):
+                continue
+            if line.startswith('#') or len(line.split('\t')) >= 6:
+                cleaned_lines.append(line)
+        
+        if cleaned_lines:
+            cookie_file = os.path.join(DOWNLOAD_DIR, f'cookies_{download_id}.txt')
+            with open(cookie_file, 'w', encoding='utf-8') as f:
+                if not any(l.startswith('# Netscape') for l in cleaned_lines):
+                    f.write("# Netscape HTTP Cookie File\n")
+                f.write('\n'.join(cleaned_lines))
+            ydl_opts['cookiefile'] = cookie_file
+            print(f"Using cleaned client-provided cookies from: {cookie_file}")
     
     # Add audio-specific options for MP3
     if format_type == 'mp3':
