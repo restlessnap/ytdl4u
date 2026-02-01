@@ -135,13 +135,33 @@ def download_video():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+def get_automatic_po_token():
+    """Fetch an automatic PO Token from a community provider"""
+    providers = [
+        "https://yt-dlp-pot.vanced.xyz",
+        "https://pot.vanced.xyz"
+    ]
+    
+    for url in providers:
+        try:
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                if 'po_token' in data and 'visitor_data' in data:
+                    print(f"✅ Successfully acquired automatic PO Token from {url}")
+                    return data['po_token'], data['visitor_data']
+        except Exception as e:
+            print(f"⚠️ Failed to fetch token from {url}: {e}")
+    
+    return None, None
+
 def download_with_ytdlp(url, format_type, quality, cookies_text=None, po_token=None, visitor_data=None):
     """Download using yt-dlp with optional credentials"""
     # Generate unique filename
     download_id = str(uuid.uuid4())
     output_template = os.path.join(DOWNLOAD_DIR, f'ytdl4u_{download_id}.%(ext)s')
     
-    # Get User-Agent from client to match cookies/session
+    # Get User-Agent from client to match session
     user_agent = request.headers.get('User-Agent')
     
     # Configure yt-dlp options
@@ -154,21 +174,32 @@ def download_with_ytdlp(url, format_type, quality, cookies_text=None, po_token=N
         'user_agent': user_agent,
     }
     
-    # Adjust extraction strategy based on authentication
-    # Priority: Cookies (Session) > PO Token (Challenge) > Anonymous
+    # Priority Bypass Logic:
+    # 1. Manual Cookies/Token (User provided)
+    # 2. Automatic PO Token (Automatic bypass)
+    # 3. Anonymous (Fallback)
+    
     youtube_args = {'skip': ['hls']}
     
     if cookies_text:
         youtube_args['player_client'] = ['web', 'mweb', 'ios']
-    elif po_token:
-        # Use web client with PO Token
+    elif po_token and visitor_data:
+        # User provided manual PO Token
         youtube_args['player_client'] = ['web']
         youtube_args['po_token'] = f"web+{po_token}"
-        if visitor_data:
-            youtube_args['visitor_data'] = visitor_data
+        youtube_args['visitor_data'] = visitor_data
     else:
-        # Fallback to android_vr for anonymous
-        youtube_args['player_client'] = ['android_vr', 'web']
+        # Try to get an automatic PO Token
+        auto_po, auto_visitor = get_automatic_po_token()
+        if auto_po and auto_visitor:
+            youtube_args['player_client'] = ['web']
+            youtube_args['po_token'] = f"web+{auto_po}"
+            youtube_args['visitor_data'] = auto_visitor
+            print("Using automatic PO Token bypass")
+        else:
+            # Complete fallback to anonymous
+            youtube_args['player_client'] = ['android_vr', 'web']
+            print("Using anonymous fallback (No tokens available)")
         
     ydl_opts['extractor_args'] = {'youtube': youtube_args}
     
