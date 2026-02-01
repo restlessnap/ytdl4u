@@ -52,19 +52,14 @@ def get_video_info():
             'quiet': False,
             'no_warnings': False,
             'extract_flat': False,
-            # Use Android client - most reliable
+            # Use android_vr - matches working local config
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['android'],
-                    'player_skip': ['webpage', 'configs'],
+                    'player_client': ['android_vr', 'web'],
+                    'skip': ['hls'],
                 }
             },
-            'user_agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
-            'http_headers': {
-                'User-Agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
-                'X-YouTube-Client-Name': '3',
-                'X-YouTube-Client-Version': '19.09.37',
-            },
+            'nocheckcertificate': True,
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -135,26 +130,21 @@ def download_with_ytdlp(url, format_type, quality):
     download_id = str(uuid.uuid4())
     output_template = os.path.join(DOWNLOAD_DIR, f'ytdl4u_{download_id}.%(ext)s')
     
-    # Configure yt-dlp options - Use Android client (most reliable)
+    # Configure yt-dlp options - Match working local configuration
     ydl_opts = {
         'format': get_format_string(format_type, quality),
         'outtmpl': output_template,
         'quiet': False,  # Show errors for debugging
         'no_warnings': False,
-        # Use ONLY Android client - most reliable against bot detection
+        # Use webpage extraction with android_vr (what works locally!)
         'extractor_args': {
             'youtube': {
-                'player_client': ['android'],  # Android only - most reliable
-                'player_skip': ['webpage', 'configs'],
+                'player_client': ['android_vr', 'web'],  # android_vr works!
+                'skip': ['hls'],
             }
         },
-        # Simulate Android app
-        'user_agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
-        'http_headers': {
-            'User-Agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip',
-            'X-YouTube-Client-Name': '3',
-            'X-YouTube-Client-Version': '19.09.37',
-        },
+        # Don't force any specific user agent - let yt-dlp decide
+        'nocheckcertificate': True,
     }
     
     # Add audio-specific options for MP3
