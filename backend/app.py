@@ -196,8 +196,8 @@ def download_with_fallback(url, format_type, quality):
     
     print(f"Attempting fallback download for: {url}")
     
-    # Use Cobalt API - privacy-friendly, no cookies needed
-    cobalt_api = "https://api.cobalt.tools/api/json"
+    # Use Cobalt v9 API (v7 was shut down Nov 2024)
+    cobalt_api = "https://api.cobalt.tools/"
     
     # Map our quality to Cobalt's format
     quality_map = {
@@ -209,14 +209,15 @@ def download_with_fallback(url, format_type, quality):
         '360': '360'
     }
     
+    # Cobalt v9 API format
     payload = {
         "url": url,
-        "vQuality": quality_map.get(quality, '1080'),
-        "filenamePattern": "basic",
-        "isAudioOnly": format_type == 'mp3'
+        "videoQuality": quality_map.get(quality, '1080'),
+        "filenameStyle": "basic",
+        "downloadMode": "audio" if format_type == 'mp3' else "auto"
     }
     
-    print(f"Cobalt API request: {payload}")
+    print(f"Cobalt v9 API request: {payload}")
     
     try:
         response = requests.post(
@@ -235,20 +236,27 @@ def download_with_fallback(url, format_type, quality):
         if response.status_code == 200:
             result = response.json()
             
-            # Cobalt returns different status types
-            if result.get('status') == 'redirect':
+            # Cobalt v9 returns different status types
+            status = result.get('status')
+            
+            if status == 'tunnel':
+                # Direct download URL
                 download_url = result.get('url')
-            elif result.get('status') == 'stream':
+            elif status == 'redirect':
+                # Redirect to download
                 download_url = result.get('url')
-            elif result.get('status') == 'picker':
+            elif status == 'picker':
                 # Multiple quality options - pick first one
                 picker = result.get('picker', [])
                 if picker and len(picker) > 0:
                     download_url = picker[0].get('url')
                 else:
                     raise Exception("No download URL in picker response")
+            elif status == 'error':
+                error_text = result.get('text', 'Unknown error')
+                raise Exception(f"Cobalt error: {error_text}")
             else:
-                raise Exception(f"Unexpected Cobalt status: {result.get('status')}")
+                raise Exception(f"Unexpected Cobalt status: {status}")
             
             if not download_url:
                 raise Exception("No download URL in Cobalt response")
