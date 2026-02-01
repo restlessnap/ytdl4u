@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YTDL4U - Premium YouTube Downloader</title>
+    <meta name="description" content="Download YouTube videos in multiple formats with our premium, fast, and free YouTube downloader. Support for MP4, MP3, and more.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background gradient -->
+    <div class="gradient-bg"></div>
+    
+    <!-- Main container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="url(#logo-gradient)"/>
+                    <path d="M12 10L22 16L12 22V10Z" fill="white"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop stop-color="#FF6B6B"/>
+                            <stop offset="1" stop-color="#4ECDC4"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">YTDL4U</span>
+            </div>
+            <div class="header-stats">
+                <div class="stat">
+                    <span class="stat-value" id="total-downloads">0</span>
+                    <span class="stat-label">Downloads</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero section -->
+        <section class="hero">
+            <h1 class="hero-title">
+                Download YouTube Videos
+                <span class="gradient-text">Instantly</span>
+            </h1>
+            <p class="hero-subtitle">
+                Premium quality downloads in MP4, MP3, and more. Single or batch processing with lightning speed.
+            </p>
+        </section>
+
+        <!-- Main card -->
+        <div class="main-card">
+            <!-- Tab switcher -->
+            <div class="tab-switcher">
+                <button class="tab-btn active" data-tab="single" id="single-tab">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 3V17M10 3L6 7M10 3L14 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Single URL
+                </button>
+                <button class="tab-btn" data-tab="batch" id="batch-tab">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M3 4H17M3 10H17M3 16H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Batch URLs
+                </button>
+            </div>
+
+            <!-- Single URL tab content -->
+            <div class="tab-content active" id="single-content">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        class="url-input" 
+                        id="single-url"
+                        placeholder="Paste YouTube URL here..."
+                        autocomplete="off"
+                    >
+                    <button class="paste-btn" id="paste-btn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M8 3H6C4.89543 3 4 3.89543 4 5V15C4 16.1046 4.89543 17 6 17H14C15.1046 17 16 16.1046 16 15V5C16 3.89543 15.1046 3 14 3H12M8 3C8 4.10457 8.89543 5 10 5C11.1046 5 12 4.10457 12 3M8 3C8 1.89543 8.89543 1 10 1C11.1046 1 12 1.89543 12 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="format-selector">
+                    <label class="format-label">Format</label>
+                    <div class="format-grid">
+                        <button class="format-btn active" data-format="mp4">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M8 8L16 12L8 16V8Z" fill="currentColor"/>
+                            </svg>
+                            <span>MP4 Video</span>
+                        </button>
+                        <button class="format-btn" data-format="mp3">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 18V5L21 3V16M9 18C9 19.6569 7.65685 21 6 21C4.34315 21 3 19.6569 3 18C3 16.3431 4.34315 15 6 15C7.65685 15 9 16.3431 9 18ZM21 16C21 17.6569 19.6569 19 18 19C16.3431 19 15 17.6569 15 16C15 14.3431 16.3431 13 18 13C19.6569 13 21 14.3431 21 16Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span>MP3 Audio</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quality-selector" id="quality-selector">
+                    <label class="format-label">Quality</label>
+                    <div class="quality-grid">
+                        <button class="quality-btn" data-quality="2160">4K (2160p)</button>
+                        <button class="quality-btn" data-quality="1440">2K (1440p)</button>
+                        <button class="quality-btn active" data-quality="1080">Full HD (1080p)</button>
+                        <button class="quality-btn" data-quality="720">HD (720p)</button>
+                        <button class="quality-btn" data-quality="480">SD (480p)</button>
+                        <button class="quality-btn" data-quality="360">Low (360p)</button>
+                    </div>
+                </div>
+
+                <div class="audio-quality-selector hidden" id="audio-quality-selector">
+                    <label class="format-label">Audio Quality</label>
+                    <div class="quality-grid">
+                        <button class="quality-btn active" data-audio-quality="320">320 kbps</button>
+                        <button class="quality-btn" data-audio-quality="256">256 kbps</button>
+                        <button class="quality-btn" data-audio-quality="192">192 kbps</button>
+                        <button class="quality-btn" data-audio-quality="128">128 kbps</button>
+                    </div>
+                </div>
+
+                <button class="download-btn" id="single-download-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 3V13M10 13L6 9M10 13L14 9M3 17H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Download Now
+                </button>
+            </div>
+
+            <!-- Batch URLs tab content -->
+            <div class="tab-content" id="batch-content">
+                <div class="input-group">
+                    <textarea 
+                        class="url-textarea" 
+                        id="batch-urls"
+                        placeholder="Paste multiple YouTube URLs (one per line)..."
+                        rows="6"
+                    ></textarea>
+                </div>
+
+                <div class="format-selector">
+                    <label class="format-label">Format</label>
+                    <div class="format-grid">
+                        <button class="format-btn active" data-format="mp4" data-batch="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M8 8L16 12L8 16V8Z" fill="currentColor"/>
+                            </svg>
+                            <span>MP4 Video</span>
+                        </button>
+                        <button class="format-btn" data-format="mp3" data-batch="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 18V5L21 3V16M9 18C9 19.6569 7.65685 21 6 21C4.34315 21 3 19.6569 3 18C3 16.3431 4.34315 15 6 15C7.65685 15 9 16.3431 9 18ZM21 16C21 17.6569 19.6569 19 18 19C16.3431 19 15 17.6569 15 16C15 14.3431 16.3431 13 18 13C19.6569 13 21 14.3431 21 16Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span>MP3 Audio</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quality-selector" id="batch-quality-selector">
+                    <label class="format-label">Quality</label>
+                    <div class="quality-grid">
+                        <button class="quality-btn active" data-quality="1080" data-batch="true">Full HD (1080p)</button>
+                        <button class="quality-btn" data-quality="720" data-batch="true">HD (720p)</button>
+                        <button class="quality-btn" data-quality="480" data-batch="true">SD (480p)</button>
+                    </div>
+                </div>
+
+                <button class="download-btn" id="batch-download-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 3V13M10 13L6 9M10 13L14 9M3 17H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Download All
+                </button>
+            </div>
+        </div>
+
+        <!-- Download queue -->
+        <div class="download-queue hidden" id="download-queue">
+            <h3 class="queue-title">Download Queue</h3>
+            <div class="queue-items" id="queue-items">
+                <!-- Queue items will be added dynamically -->
+            </div>
+        </div>
+
+        <!-- Features section -->
+        <section class="features">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Lightning Fast</h3>
+                <p>Download videos at maximum speed with our optimized infrastructure</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Multiple Formats</h3>
+                <p>Support for MP4, MP3, and various quality options from 360p to 4K</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Privacy First</h3>
+                <p>No tracking, no data collection. Your downloads are completely private</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Made with ❤️ for the community • No ads, no tracking, just downloads</p>
+        </footer>
+    </div>
+
+    <!-- Toast notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
