@@ -249,7 +249,9 @@ async function processDownload(item) {
         let cookiesText = null;
         if (cookie) {
             // Create Netscape cookie format for yt-dlp
-            cookiesText = `.youtube.com\tTRUE\t/\tTRUE\t0\tVISITOR_INFO1_LIVE\t${cookie}`;
+            cookiesText = `# Netscape HTTP Cookie File\n` +
+                `.youtube.com\tTRUE\t/\tTRUE\t0\tVISITOR_INFO1_LIVE\t${cookie}\n` +
+                `www.youtube.com\tTRUE\t/\tTRUE\t0\tVISITOR_INFO1_LIVE\t${cookie}`;
         }
 
         // Make API request to download service
