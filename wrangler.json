@@ -1,0 +1,7 @@
+{
+    "name": "ytdl4u",
+    "compatibility_date": "2026-02-01",
+    "assets": {
+        "directory": "."
+    }
+}
