@@ -77,21 +77,21 @@
 
 <body>
     <div class="card">
-        <h1>Local Bookmarklet Tester</h1>
-        <p>This "Mock YouTube" page helps you verify the bookmarklet code locally before using it on the real site.</p>
+        <h1>Local Bookmarklet Tester (v3)</h1>
+        <p>This "Mock YouTube" page helps you verify the bookmarklet code locally.</p>
 
         <script>
             // Setup mock cookies
-            document.cookie = "VISITOR_INFO1_LIVE=LOCAL_MOCK_VALUE; path=/";
-            document.cookie = "LOGIN_INFO=LOCAL_AUTH_MOCK; path=/";
+            document.cookie = "VISITOR_INFO1_LIVE=LOCAL_V3_SUCCESS; path=/";
+            document.cookie = "LOGIN_INFO=LOCAL_AUTH_TEST_V3; path=/";
         </script>
 
-        <p><strong>Step 1:</strong> Paste the bookmarklet code here:</p>
+        <p><strong>Step 1:</strong> Paste the new bookmarklet code here:</p>
         <textarea id="code" placeholder="javascript:(...)"></textarea>
 
-        <button onclick="runTest()">Test Extractor Logic</button>
+        <button onclick="runTest()">Test Extractor In-Page</button>
 
-        <p class="footer">Clicking the button will simulate a bookmarklet click on this page.</p>
+        <p class="footer">This version will inject the modal directly into this page, avoiding blank window issues.</p>
 
         <script>
             function runTest() {
@@ -106,7 +106,9 @@
                 jsCode = jsCode.replace("location.hostname.includes('youtube.com')", "true");
 
                 try {
-                    eval(jsCode);
+                    // We use Function instead of eval for cleaner execution context
+                    // and wrap it in a function wrapper if it isn't already (though bookmarklet is)
+                    new Function(jsCode)();
                 } catch (e) {
                     alert('Error: ' + e.message);
                     console.error(e);
